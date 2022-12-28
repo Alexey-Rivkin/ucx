@@ -62,12 +62,9 @@ jobs:
           set -eEx
           cd pkg-build
           echo "PWD: $(pwd)"
-          # ls -l $(Build.SourcesDirectory)     # /__w/5/we/need/to/go/deeper
           ls -l $(Build.SourcesDirectory)/contrib/configure-release-mt   || true
-
           echo 10 > debian/compat
           dpkg-buildpackage -us -uc
-
           find .. -name '*.deb'
           find .. -name '*.deb' -exec cp {} "../${AZ_ARTIFACT_NAME}" \;
           dpkg-deb -I "../${AZ_ARTIFACT_NAME}"
