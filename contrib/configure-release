@@ -1,4 +1,4 @@
-#!/bin/sh -eEx
+#!/bin/sh
 #
 # Copyright (c) NVIDIA CORPORATION & AFFILIATES, 2001-2014. ALL RIGHTS RESERVED.
 #

@@ -1,4 +1,4 @@
-#!/bin/bash -eEx
+#!/bin/bash -eE
 
 
 PACKAGE=ucx

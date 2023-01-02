@@ -1,34 +1,66 @@
+parameters:
+  name:
+  demands: []
+
 jobs:
-  - job: distro_release
-    displayName: distro
+  - job: distro_release_${{ parameters.name }}
+    displayName: Distro ${{ parameters.name }}
     variables:
       ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
         POSTFIX: ucx-${{ replace(variables['Build.SourceBranch'], 'refs/heads/', '') }}
-      # ${{ if eq(variables['Build.Reason'], 'IndividualCI') }}:
+      # ${{ if eq(variables['Build.Reason'], 'IndividualCI') }}:                            # TMP Hack to test by trigger: push
       #   POSTFIX: ucx-${{ replace(variables['Build.SourceBranch'], 'refs/heads/', '') }}   # TMP Hack to test by trigger: push
       ${{ if eq(variables['Build.Reason'], 'IndividualCI') }}:
         POSTFIX: ucx-${{ replace(variables['Build.SourceBranch'], 'refs/tags/', '') }}
       ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
         POSTFIX: ucx-pr$(System.PullRequest.PullRequestNumber)
 
-    pool:
-      name: MLNX
-      demands:
-        - ucx_bf -equals yes
+    ${{ if eq(parameters.name, 'x86_64') }}:
+      strategy:
+        matrix:
+          centos7_cuda11_x86_64:
+            build_container: centos7_cuda11_x86_64
+            artifact_name: $(POSTFIX)-centos7-mofed5-cuda11-x86_64.tar.bz2
+            demands: ucx_docker -equals yes
+          centos8_cuda11_x86_64:
+            build_container: centos8_cuda11_x86_64
+            artifact_name: $(POSTFIX)-centos8-mofed5-cuda11-x86_64.tar.bz2
+            demands: ucx_docker -equals yes
+          ubuntu16_cuda11_x86_64:
+            build_container: ubuntu16_cuda11_x86_64
+            artifact_name: $(POSTFIX)-ubuntu16.04-mofed5-cuda11-x86_64.deb
+            demands: ucx_docker -equals yes
+          ubuntu18_cuda11_x86_64:
+            build_container: ubuntu18_cuda11_x86_64
+            artifact_name: $(POSTFIX)-ubuntu18.04-mofed5-cuda11-x86_64.deb
+            demands: ucx_docker -equals yes
+          ubuntu20_cuda11_x86_64:
+            build_container: ubuntu20_cuda11_x86_64
+            artifact_name: $(POSTFIX)-ubuntu20.04-mofed5-cuda11-x86_64.deb
+            demands: ucx_docker -equals yes
+      container: $[ variables['build_container'] ]
+      pool:
+        name: MLNX
+        demands: ${{ parameters.demands }}
 
-    strategy:
-      matrix:
-        centos8_cuda11:
-          build_container: centos8_cuda11
-          artifact_name: $(POSTFIX)-centos8-mofed5-cuda11-aarch64.tar.bz2
-        ubuntu18_cuda11:
-          build_container: ubuntu18_cuda11
-          artifact_name: $(POSTFIX)-ubuntu18.04-mofed5-cuda11-aarch64.deb
-        ubuntu20_cuda11:
-          build_container: ubuntu20_cuda11
-          artifact_name: $(POSTFIX)-ubuntu20.04-mofed5-cuda11-aarch64.deb
-
-    container: $[ variables['build_container'] ]
+    ${{ if eq(parameters.name, 'aarch64') }}:
+      strategy:
+        matrix:
+          centos8_cuda11_aarch64:
+            build_container: centos8_cuda11_aarch64
+            artifact_name: $(POSTFIX)-centos8-mofed5-cuda11-aarch64.tar.bz2
+            demands: ucx_bf -equals yes
+          ubuntu18_cuda11_aarch64:
+            build_container: ubuntu18_cuda11_aarch64
+            artifact_name: $(POSTFIX)-ubuntu18.04-mofed5-cuda11-aarch64.deb
+            demands: ucx_bf -equals yes
+          ubuntu20_cuda11_aarch64:
+            build_container: ubuntu20_cuda11_aarch64
+            artifact_name: $(POSTFIX)-ubuntu20.04-mofed5-cuda11-aarch64.deb
+      container: $[ variables['build_container'] ]
+      pool:
+        name: MLNX
+        demands: ${{ parameters.demands }}
 
     steps:
       - checkout: self
@@ -61,7 +93,6 @@ jobs:
       - bash: |
           set -eEx
           cd pkg-build
-          # echo "PWD: $(pwd)"
           echo 10 > debian/compat
           dpkg-buildpackage -us -uc
           find .. -name '*.deb'
@@ -77,8 +108,8 @@ jobs:
         displayName: Upload artifacts
         inputs:
           githubConnection: release
-          repositoryName: openucx/ucx
-          # repositoryName: Al3xR01/ucx   # DEBUG
+          # repositoryName: openucx/ucx
+          repositoryName: Al3xR01/ucx   # DEBUG
           action: edit
           tag: $(Build.SourceBranchName)
           isDraft: true
