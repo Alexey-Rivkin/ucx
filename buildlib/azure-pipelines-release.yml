@@ -49,7 +49,7 @@ stages:
 
   # Create an empty draft to avoid race condition in distro releases
   - stage: GitHubDraft
-    condition: eq(dependencies.Prepare.outputs['CheckRelease.Result.Launch'], 'True')
+    # condition: eq(dependencies.Prepare.outputs['CheckRelease.Result.Launch'], 'True')
     dependsOn: Prepare
     jobs:
       - job: DraftRelease
@@ -97,10 +97,10 @@ stages:
     dependsOn:
       - Prepare
       - GitHubDraft
-    condition: eq(dependencies.Prepare.outputs['CheckRelease.Result.Launch'], 'True')
+    # condition: eq(dependencies.Prepare.outputs['CheckRelease.Result.Launch'], 'True')
     jobs:
       - template: az-distro-release.yml
-      - template: jucx/jucx-publish.yml
+      # - template: jucx/jucx-publish.yml
         parameters:
           ${{ if eq(variables['Build.Reason'], 'IndividualCI') }}:
             target: publish-release
