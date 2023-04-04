@@ -101,6 +101,14 @@ jobs:
           CONTAINER: ubuntu22_cuda_12_0
         ubuntu22_cuda_12_1:
           CONTAINER: ubuntu22_cuda_12_1
+        ubi8_cuda_12_0:
+          CONTAINER: ubi8_cuda_12_0
+        ubi8_cuda_12_1:
+          CONTAINER: ubi8_cuda_12_1
+        ubi9_cuda_12_0:
+          CONTAINER: ubi9_cuda_12_0
+        ubi9_cuda_12_1:
+          CONTAINER: ubi9_cuda_12_1
 
     container: $[ variables['CONTAINER'] ]
     timeoutInMinutes: 35
