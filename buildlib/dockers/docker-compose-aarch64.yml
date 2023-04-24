@@ -9,6 +9,10 @@ version: "3.4"
 # https://developer.nvidia.com/cuda-11-7-0-download-archive?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=22.04&target_type=runfile_local
 
 services:
+#################
+# NO CUDA support for Rocky on ARM! x86 only
+# https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=arm64-sbsa&Compilation=Native
+#################
   centos8-mofed5-cuda11:
     image: centos8-mofed5-cuda11:3
     build:

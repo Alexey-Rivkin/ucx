@@ -9,6 +9,34 @@ version: "3.4"
 # https://developer.nvidia.com/cuda-11-7-0-download-archive?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=22.04&target_type=runfile_local
 
 services:
+#################
+  rocky8-mofed5-cuda11:
+    image: rocky8-mofed5-cuda11:3
+    build:
+      context: .
+      network: host
+      dockerfile: rocky-release.Dockerfile
+      args:
+        MOFED_VERSION: 5.4-3.6.8.1
+        MOFED_OS: rhel8.0
+        CUDA_VERSION: 11.7.0
+        OS_VERSION: 8
+        ARCH: x86_64
+
+  rocky8-mofed5-cuda12:
+    image: rocky8-mofed5-cuda12:3
+    build:
+      context: .
+      network: host
+      dockerfile: rocky-release.Dockerfile
+      args:
+        MOFED_VERSION: 5.4-3.6.8.1
+        MOFED_OS: rhel8..
+        CUDA_VERSION: 12.0.0
+        OS_VERSION: 8
+        ARCH: x86_64
+
+#################
   centos7-mofed5-cuda11:
     image: centos7-mofed5-cuda11:3
     build:
