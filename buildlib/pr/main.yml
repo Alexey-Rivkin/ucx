@@ -312,6 +312,11 @@ stages:
         name: BlueField
         demands: ucx_bf -equals yes
         test_perf: 0
+    - template: tests.yml
+      parameters:
+        name: LG40
+        demands: ucx_lg40
+        test_perf: 0
 
   - stage: Namespace_Tests
     dependsOn: [Static_check]
