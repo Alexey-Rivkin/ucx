@@ -317,6 +317,7 @@ stages:
         name: L40G
         demands: ucx_l40g
         test_perf: 0
+        valgrind_disable: yes
 
   - stage: Namespace_Tests
     dependsOn: [Static_check]
