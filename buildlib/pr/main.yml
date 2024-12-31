@@ -54,9 +54,6 @@ resources:
     - container: debian125
       image: rdmz-harbor.rdmz.labs.mlnx/hpcx/x86_64/debian12.5/builder:doca-2.9.0
       options: $(DOCKER_OPT_ARGS) $(DOCKER_OPT_VOLUMES)
-    - container: sles15sp2
-      image: rdmz-harbor.rdmz.labs.mlnx/ucx/x86_64/sles15sp2/builder:mofed-5.0-1.0.0.0
-      options: $(DOCKER_OPT_ARGS) $(DOCKER_OPT_VOLUMES)
     - container: centos7_cuda_11_0
       image: nvidia/cuda:11.0.3-devel-centos7
       options: $(DOCKER_OPT_ARGS) $(DOCKER_OPT_GPU)
@@ -209,8 +206,6 @@ stages:
               CONTAINER: debian109
             debian125:
               CONTAINER: debian125
-            sles15sp2:
-              CONTAINER: sles15sp2
             rhel82:
               CONTAINER: rhel82
             rhel90:
