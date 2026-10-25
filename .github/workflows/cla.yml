@@ -1,6 +1,7 @@
 # Check that the PR author and all commit authors are covered by a UCF CLA:
 # either a member of the secret CLA team, or the committer of a commit whose
 # verified signature ties a corporate-CLA email domain to a GitHub account.
+# Co-authored-by trailers are not checked: the commit's signer covers it.
 # Informational: findings are reported as warnings, the check does not fail.
 name: CLA
 
