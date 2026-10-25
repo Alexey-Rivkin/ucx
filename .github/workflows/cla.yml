@@ -2,7 +2,7 @@
 # either a member of the secret CLA team, or the committer of a commit whose
 # verified signature ties a corporate-CLA email domain to a GitHub account.
 # Co-authored-by trailers are not checked: the commit's signer covers it.
-# Informational: findings are reported as warnings, the check does not fail.
+# Findings fail the check; it blocks merging only once marked as required.
 name: CLA
 
 # pull_request_target passes secrets to fork PRs; PR code is never checked out.
@@ -129,7 +129,7 @@ jobs:
           fi
 
           {
-              echo "### UCF CLA check warnings"
+              echo "### UCF CLA check failed"
               if [ ${#missing[@]} -gt 0 ]; then
                   echo "- No signed CLA on file for: ${missing[*]}"
               fi
@@ -153,4 +153,5 @@ jobs:
                   echo "(ask a maintainer to register your company's email domain if it is not yet)."
               fi
           } | tee -a "$GITHUB_STEP_SUMMARY"
-          echo "::warning::UCF CLA check has warnings, see the job summary"
+          echo "::error::UCF CLA check failed, see the job summary"
+          exit 1
