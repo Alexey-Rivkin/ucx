@@ -19,7 +19,6 @@ jobs:
     name: CLA
     runs-on: ubuntu-latest
     # Forks have no CLA app secrets or team
-    if: github.repository == 'openucx/ucx'
     permissions:
       pull-requests: read
     steps:
@@ -29,14 +28,14 @@ jobs:
         with:
           client-id: ${{ vars.CLA_APP_CLIENT_ID }}
           private-key: ${{ secrets.CLA_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          owner: openucx
           permission-members: read
 
       - name: Check CLA signers
         env:
           GH_TOKEN: ${{ github.token }}
           ORG_TOKEN: ${{ steps.app-token.outputs.token }}
-          ORG: ${{ github.repository_owner }}
+          ORG: openucx
           # Slug of the secret team of individual CLA signers
           TEAM: ${{ vars.CLA_TEAM }}
           # Space separated email domains of corporate CLA signers
