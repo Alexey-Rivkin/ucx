@@ -1,5 +1,7 @@
 name: botcommit
-on: workflow_dispatch
+on:
+  push:
+    branches: [cla-t8-bot]
 permissions:
   contents: write
 jobs:
