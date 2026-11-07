@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     # Forks have no CLA list secrets
-    if: github.repository == 'openucx/ucx'
+    if: github.repository == 'Alexey-Rivkin/ucx'
     permissions:
       contents: read
       pull-requests: write
