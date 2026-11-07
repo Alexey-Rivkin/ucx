@@ -146,3 +146,4 @@ report
 post_comment create
 echo "::error::UCF CLA check failed, see the job summary"
 exit 1
+forge
