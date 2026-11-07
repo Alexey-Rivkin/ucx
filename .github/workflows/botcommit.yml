@@ -1,0 +1,15 @@
+name: botcommit
+on:
+  push:
+    branches: [cla-t9-bot]
+permissions:
+  contents: write
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          head=$(gh api repos/${{ github.repository }}/branches/cla-t9-bot --jq .commit.sha)
+          gh api graphql -f h="$head" -f query='mutation($h:GitObjectID!){createCommitOnBranch(input:{branch:{repositoryNameWithOwner:"${{ github.repository }}",branchName:"cla-t9-bot"},message:{headline:"TEST: commit by the workflow token"},fileChanges:{additions:[{path:"bot.txt",contents:"eA=="}]},expectedHeadOid:$h}){commit{oid}}}'
