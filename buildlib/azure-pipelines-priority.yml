@@ -1,0 +1,80 @@
+# Moves the queued jobs of selected PR builds to the front of the MLNX pool
+# queue.
+#
+# A scheduled run scans the unfinished PR builds once and picks those whose PR
+# carries the GitHub label. A manual run can name PRs or builds instead, and
+# can keep re-prioritizing them as later stages queue their jobs.
+#
+# Runs on a Microsoft-hosted agent, so it never waits in the MLNX queue it
+# reorders. Azure allows about 1000 scheduled runs per pipeline a week, which
+# makes 15 minutes the shortest interval that stays under the limit.
+
+trigger: none
+pr: none
+
+schedules:
+- cron: '*/15 * * * *'
+  displayName: Priority scan
+  always: true
+  branches:
+    include:
+    - ci-azure-priority
+
+parameters:
+- name: prs
+  displayName: PR numbers, space separated (empty - scan by label)
+  type: string
+  default: ''
+- name: builds
+  displayName: Build IDs, space separated (empty - scan by label)
+  type: string
+  default: ''
+- name: label
+  displayName: GitHub PR label for the scan
+  type: string
+  default: CI priority
+- name: monitorMinutes
+  displayName: Keep re-prioritizing for this many minutes (0 - one pass)
+  type: number
+  default: 0
+- name: dryRun
+  displayName: Only list the jobs that would be prioritized
+  type: boolean
+  default: false
+
+jobs:
+- job: priority
+  displayName: Prioritize PR builds
+  timeoutInMinutes: 360
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - checkout: self
+    fetchDepth: 1
+
+  - task: UsePythonVersion@0
+    displayName: Use Python 3
+    inputs:
+      versionSpec: '3.x'
+
+  - bash: |
+      set -eu
+      python3 -m pip install --quiet requests
+      if [ -n "$BUILDS$PRS" ]; then
+          args=($BUILDS ${PRS:+--pr $PRS})
+      else
+          args=(--scan --label "$LABEL")
+      fi
+      [ "$MONITOR_MINUTES" != 0 ] && args+=(--loop --duration "$MONITOR_MINUTES")
+      [ "$DRY_RUN" = "True" ] && args+=(--dry-run)
+      python3 buildlib/tools/az_priority.py "${args[@]}"
+    displayName: Prioritize PR builds
+    env:
+      # Secret pipeline variable. Reordering the queue needs Manage permission
+      # on the MLNX pool, which the job token does not have.
+      AZURE_DEVOPS_PAT: $(AZURE_DEVOPS_PAT)
+      PRS: ${{ parameters.prs }}
+      BUILDS: ${{ parameters.builds }}
+      LABEL: ${{ parameters.label }}
+      MONITOR_MINUTES: ${{ parameters.monitorMinutes }}
+      DRY_RUN: ${{ parameters.dryRun }}
