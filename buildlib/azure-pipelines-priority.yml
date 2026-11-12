@@ -1,24 +1,16 @@
 # Moves the queued jobs of selected PR builds to the front of the MLNX pool
 # queue.
 #
-# A scheduled run scans the unfinished PR builds once and picks those whose PR
-# carries the GitHub label. A manual run can name PRs or builds instead, and
-# can keep re-prioritizing them as later stages queue their jobs.
+# Runs on demand. With no PR or build named, a run scans the unfinished PR
+# builds once and picks those whose PR carries the GitHub label. A run can name
+# PRs or builds instead, and can keep re-prioritizing them as later stages
+# queue their jobs.
 #
 # Runs on a Microsoft-hosted agent, so it never waits in the MLNX queue it
-# reorders. Azure allows about 1000 scheduled runs per pipeline a week, which
-# makes 15 minutes the shortest interval that stays under the limit.
+# reorders.
 
 trigger: none
 pr: none
-
-schedules:
-- cron: '*/15 * * * *'
-  displayName: Priority scan
-  always: true
-  branches:
-    include:
-    - ci-azure-priority
 
 parameters:
 - name: prs
