@@ -62,6 +62,30 @@ def pipelineOverviewUrl = "${env.BUILD_URL}pipeline-overview/"
 githubHelper.updateCommitStatus(pipelineOverviewUrl, "Blossom CI started", GitHubCommitState.PENDING)
 currentBuild.description = githubHelper.getBuildDescription()
 
+// PR runs that start leaf jobs at the same time; the rest wait in start order
+def maxActiveRuns = 3
+
+// Run objects are not serializable, hence NonCPS
+@NonCPS
+def countOlderRuns(String jobName, int buildNumber) {
+  return Jenkins.instance.getItemByFullName(jobName).builds.findAll {
+    it.isBuilding() && it.number < buildNumber
+  }.size()
+}
+
+def waited = false
+while (countOlderRuns(env.JOB_NAME, currentBuild.number) >= maxActiveRuns) {
+  if (!waited) {
+    waited = true
+    echo "Waiting for a free slot, at most ${maxActiveRuns} PR runs start leaf jobs at a time"
+    githubHelper.updateCommitStatus(pipelineOverviewUrl, "Blossom CI waiting for a free slot", GitHubCommitState.PENDING)
+  }
+  sleep 60
+}
+if (waited) {
+  githubHelper.updateCommitStatus(pipelineOverviewUrl, "Blossom CI started", GitHubCommitState.PENDING)
+}
+
 def jobs = [
   'ucx-static-checks-oss',
   'ucx-coverity-oss',
