@@ -1,0 +1,29 @@
+echo "START build=${currentBuild.number} hold=${params.hold} at ${new Date()}"
+
+// PR runs that start leaf jobs at the same time; the rest wait in start order
+def maxActiveRuns = 3
+
+// Run objects are not serializable, hence NonCPS
+@NonCPS
+def countOlderRuns(String jobName, int buildNumber) {
+  return Jenkins.instance.getItemByFullName(jobName).builds.findAll {
+    it.isBuilding() && it.number < buildNumber
+  }.size()
+}
+
+def waited = false
+while (countOlderRuns(env.JOB_NAME, currentBuild.number) >= maxActiveRuns) {
+  if (!waited) {
+    waited = true
+    echo "Waiting for a free slot, at most ${maxActiveRuns} PR runs start leaf jobs at a time"
+    echo "STATUS PENDING: Blossom CI waiting for a free slot at ${new Date()}"
+  }
+  sleep 60
+}
+if (waited) {
+  echo "STATUS PENDING: Blossom CI started at ${new Date()}"
+}
+
+echo "GATE PASSED build=${currentBuild.number} at ${new Date()}"
+sleep(params.hold as int)
+echo "DONE build=${currentBuild.number} at ${new Date()}"
